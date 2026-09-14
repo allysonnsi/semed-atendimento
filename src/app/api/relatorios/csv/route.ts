@@ -4,7 +4,8 @@ import { requireRole } from "@/lib/auth/session";
 import { STATUS_LABEL, formatTime } from "@/lib/utils";
 
 export async function GET() {
-  requireRole("admin", "manager");
+  await requireRole("admin");
+
   const tickets = listTicketsToday();
   const rows = [["Senha", "Nome", "Setor", "Tipo", "Status", "Chegada"].join(",")];
   tickets.forEach((t) => {

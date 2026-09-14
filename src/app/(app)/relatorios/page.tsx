@@ -2,8 +2,9 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { requireRole } from "@/lib/auth/session";
 import { listTicketsToday, getProfile } from "@/lib/db/store";
 
-export default function RelatoriosPage() {
-  requireRole("admin", "manager");
+export default async function RelatoriosPage() {
+  await requireRole("admin");
+
   const tickets = listTicketsToday();
 
   const byType: Record<string, number> = {};

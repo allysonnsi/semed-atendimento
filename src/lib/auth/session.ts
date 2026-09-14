@@ -1,32 +1,72 @@
 import "server-only";
 
-import { createClient } from "@/lib/supabase/server";
-import { getProfile } from "@/lib/db/store";
 import type { Profile, RoleKey } from "@/types/database";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function getSession(): Promise<Profile | null> {
-  const supabase = await createClient();
+  const supabase = createSupabaseServerClient();
 
   const {
     data: { user },
-    error,
+    error: authError,
   } = await supabase.auth.getUser();
 
-  if (error || !user) {
+  if (authError || !user) {
     return null;
   }
 
-  const profile = getProfile(user.id);
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select(`
+      id,
+      full_name,
+      role_id,
+      sector_id,
+      active,
+      created_at,
+      updated_at,
+      roles!inner (
+        key
+      )
+    `)
+    .eq("id", user.id)
+    .single();
 
-  if (!profile || !profile.active) {
+  if (profileError || !profile) {
     return null;
   }
 
-  return profile;
+  if (!profile.active) {
+    return null;
+  }
+
+  const roleData = profile.roles as unknown as
+    | { key: RoleKey }
+    | { key: RoleKey }[]
+    | null;
+
+  const role = Array.isArray(roleData)
+    ? roleData[0]
+    : roleData;
+
+  if (!role) {
+    return null;
+  }
+
+  return {
+    id: profile.id,
+    full_name: profile.full_name,
+    role_id: profile.role_id,
+    role_key: role.key,
+    sector_id: profile.sector_id,
+    active: profile.active,
+    created_at: profile.created_at,
+    updated_at: profile.updated_at,
+  };
 }
 
 export async function clearSessionCookie() {
-  const supabase = await createClient();
+  const supabase = createSupabaseServerClient();
 
   await supabase.auth.signOut();
 }
@@ -41,7 +81,9 @@ export async function requireUser(): Promise<Profile> {
   return session;
 }
 
-export async function requireRole(...roles: RoleKey[]): Promise<Profile> {
+export async function requireRole(
+  ...roles: RoleKey[]
+): Promise<Profile> {
   const session = await requireUser();
 
   if (!roles.includes(session.role_key)) {

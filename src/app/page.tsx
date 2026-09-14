@@ -9,7 +9,7 @@ const HOME_BY_ROLE: Record<string, string> = {
   attendant: "/atendimento",
 };
 
-export default function RootPage() {
-  const user = getSession();
+export default async function RootPage() {
+  const user = await getSession();
   redirect(user ? HOME_BY_ROLE[user.role_key] ?? "/dashboard" : "/login");
 }

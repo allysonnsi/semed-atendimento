@@ -1,7 +1,7 @@
-// Tipos que espelham exatamente o schema em supabase/migrations/0001_init.sql
-// Usados tanto pelo adaptador mock (demo) quanto pelo adaptador Supabase real.
+// Tipos que espelham o schema em supabase/migrations/0001_init.sql
+// Usados pelo sistema SEMED.
 
-export type RoleKey = "admin" | "receptionist" | "attendant" | "manager";
+export type RoleKey = "admin" | "receptionist" | "attendant";
 
 export type TicketStatus =
   | "waiting"
@@ -44,7 +44,7 @@ export interface Profile {
   id: string;
   full_name: string;
   role_id: string;
-  role_key: RoleKey; // resolvido via join, conveniência
+  role_key: RoleKey;
   sector_id: string | null;
   active: boolean;
   created_at: string;
@@ -72,10 +72,10 @@ export interface Ticket {
   id: string;
   code: string;
   sequence_number: number;
-  ticket_date: string; // YYYY-MM-DD
+  ticket_date: string;
   sector_id: string;
   visitor_id: string;
-  visitor_name: string; // denormalizado para conveniência de leitura
+  visitor_name: string;
   visitor_type_label: string;
   reason: string | null;
   notes: string | null;
@@ -94,7 +94,11 @@ export interface Attendance {
   recall_count: number;
   started_at: string | null;
   ended_at: string | null;
-  result_status: "completed" | "cancelled" | "no_show" | null;
+  result_status:
+    | "completed"
+    | "cancelled"
+    | "no_show"
+    | null;
   observation: string | null;
 }
 

@@ -5,8 +5,8 @@ import { StatusBadge } from "@/components/ui/Badge";
 import { formatTime, formatDuration } from "@/lib/utils";
 import { VISITOR_TYPE_LABELS } from "@/lib/constants";
 
-export default function HistoricoPage({ searchParams }: { searchParams: { [key: string]: string | undefined } }) {
-  requireRole("admin", "manager", "receptionist");
+export default async function HistoricoPage({ searchParams }: { searchParams: { [key: string]: string | undefined } }) {
+  await requireRole("admin");
   const sectors = listActiveSectors();
   let tickets = listAllTickets();
 

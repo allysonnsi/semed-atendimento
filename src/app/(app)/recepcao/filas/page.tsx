@@ -8,12 +8,11 @@ function priorityWeight(p: string) {
   return p === "urgent" ? 0 : p === "priority" ? 1 : 2;
 }
 
-export default function FilasPage() {
-  const user = requireRole("admin", "receptionist", "manager");
+export default async function FilasPage() {
+  const user = await requireRole("admin", "receptionist");
   const sectors = listActiveSectors();
   const tickets = listTicketsToday();
-  const canCancel = user.role_key !== "manager";
-
+  const canCancel = user.role_key === "admin";
   return (
     <>
       <PageHeader title="Filas por setor" subtitle="Acompanhamento das filas da recepção" />

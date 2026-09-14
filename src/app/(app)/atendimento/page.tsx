@@ -7,8 +7,8 @@ function priorityWeight(p: string) {
   return p === "urgent" ? 0 : p === "priority" ? 1 : 2;
 }
 
-export default function AtendimentoPage() {
-  const user = requireRole("attendant");
+export default async function AtendimentoPage() {
+  const user = await requireRole("attendant");
   const sector = getSector(user.sector_id!)!;
   const tickets = listTicketsToday().filter((t) => t.sector_id === sector.id);
 

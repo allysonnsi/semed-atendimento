@@ -1,10 +1,12 @@
-import { redirect } from "next/navigation";
-import { getSession } from "@/lib/auth/session";
+import { requireUser } from "@/lib/auth/session";
 import { Sidebar } from "@/components/layout/Sidebar";
 
-export default function AppLayout({ children }: { children: React.ReactNode }) {
-  const user = getSession();
-  if (!user) redirect("/login");
+export default async function AppLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const user = await requireUser();
 
   return (
     <div className="flex min-h-screen">

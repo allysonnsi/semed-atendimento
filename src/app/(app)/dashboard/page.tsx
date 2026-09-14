@@ -7,8 +7,8 @@ import type { TicketStatus } from "@/types/database";
 
 const STATUSES: TicketStatus[] = ["waiting", "called", "in_progress", "completed", "cancelled", "no_show"];
 
-export default function DashboardPage() {
-  requireRole("admin", "manager");
+export default async function DashboardPage() {
+  await requireRole("admin");
   const tickets = listTicketsToday();
   const sectors = listActiveSectors();
 
