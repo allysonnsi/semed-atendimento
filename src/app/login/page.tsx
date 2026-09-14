@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { listProfiles } from "@/lib/db/store";
 import { loginAsDemo } from "@/features/auth/actions";
 import { ROLE_LABEL } from "@/lib/constants";
@@ -23,25 +22,20 @@ export default function LoginPage() {
       <div className="bg-white rounded-2xl p-9 w-full max-w-[440px] shadow-2xl">
 
         <div className="flex flex-col items-center text-center mb-6">
+  <img
+    src="/logo-semed.png"
+    alt="SEMED São José de Ribamar"
+    className="w-[280px] h-auto object-contain mb-4"
+  />
 
-          <Image
-            src="/logo.png"
-            alt="SEMED São José de Ribamar"
-            width={300}
-            height={100}
-            priority
-            className="w-[280px] h-auto object-contain mb-4"
-          />
+  <h2 className="text-[17px] font-extrabold">
+    SEMED São José de Ribamar
+  </h2>
 
-          <h2 className="text-[17px] font-extrabold">
-            SEMED São José de Ribamar
-          </h2>
-
-          <p className="text-[12.5px] text-ink-muted mt-1">
-            Controle de Ordem de Chegada e Atendimento
-          </p>
-
-        </div>
+  <p className="text-[12.5px] text-ink-muted mt-1">
+    Controle de Ordem de Chegada e Atendimento
+  </p>
+</div>
 
         <div className="flex flex-col gap-2">
           {sorted.map((p) => (
