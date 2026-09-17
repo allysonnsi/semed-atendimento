@@ -32,11 +32,7 @@ export async function getSession(): Promise<Profile | null> {
     .eq("id", user.id)
     .single();
 
-  if (profileError || !profile) {
-    return null;
-  }
-
-  if (!profile.active) {
+  if (profileError || !profile || !profile.active) {
     return null;
   }
 
@@ -65,12 +61,6 @@ export async function getSession(): Promise<Profile | null> {
   };
 }
 
-export async function clearSessionCookie() {
-  const supabase = createSupabaseServerClient();
-
-  await supabase.auth.signOut();
-}
-
 export async function requireUser(): Promise<Profile> {
   const session = await getSession();
 
@@ -91,4 +81,10 @@ export async function requireRole(
   }
 
   return session;
+}
+
+export async function clearSessionCookie() {
+  const supabase = createSupabaseServerClient();
+
+  await supabase.auth.signOut();
 }

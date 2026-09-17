@@ -55,7 +55,7 @@ const NAV_ITEMS: NavItem[] = [
     href: "/historico",
     label: "Histórico",
     icon: History,
-    roles: ["admin", "receptionist"],
+    roles: ["admin", "receptionist", "attendant"],
   },
   {
     href: "/relatorios",
