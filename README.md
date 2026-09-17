@@ -1,110 +1,81 @@
-# SEMED São José de Ribamar — Controle de Ordem de Chegada e Atendimento
+# SEMED Atendimento
 
-Sistema web para a recepção da Secretaria Municipal de Educação organizar o
-atendimento presencial: geração de senha por setor, filas, chamada de senha,
-painel público (TV), dashboard, histórico e relatórios.
+Sistema web para gerenciamento de atendimentos presenciais da Secretaria Municipal de Educação de São José de Ribamar (SEMED).
 
-## Status deste pacote
+O projeto foi desenvolvido com foco em organização do fluxo de atendimento, gerenciamento de filas, controle de usuários por função, acompanhamento dos atendimentos e disponibilização de um painel público de chamadas.
 
-Este projeto roda de duas formas, com o **mesmo código de UI e as mesmas
-regras de negócio** nos dois casos:
+> 🚧 Projeto em desenvolvimento — atualmente em processo de evolução da camada de dados MOCK para uma arquitetura totalmente integrada ao Supabase.
 
-| Modo | Como ativa | Dados |
-|---|---|---|
-| **Demonstração** (padrão) | Sem configurar nada | Em memória, no processo do servidor Next.js (`src/lib/db/store.ts`), com dados de exemplo (seed) |
-| **Produção** | Preencher `.env.local` com as chaves do Supabase (ver `.env.example`) | PostgreSQL real, Supabase Auth, RLS e Realtime |
+---
 
-A troca entre os dois modos é só de **configuração** — os Server Actions em
-`src/features/*/actions.ts` e as páginas em `src/app/` não mudam. O schema
-SQL completo, com todas as constraints e as *policies* de RLS, já está
-pronto em `supabase/migrations/0001_init.sql`, espelhando exatamente as
-regras implementadas no modo demonstração.
+## 📌 Sobre o projeto
 
-## Rodando localmente
+O SEMED Atendimento foi criado para digitalizar e organizar o atendimento presencial realizado por diferentes setores da Secretaria de Educação.
 
-```bash
-npm install
-npm run dev
-```
+A aplicação permite registrar visitantes, gerar senhas, organizar filas por setor e permitir que atendentes controlem o fluxo de chamadas e atendimentos.
 
-Abra http://localhost:3000 — você será redirecionado para `/login`, onde pode
-entrar como qualquer um dos 5 usuários de demonstração (Administrador,
-Recepcionista, 2 Atendentes de setores diferentes, Gestor), sem senha.
+O sistema possui diferentes níveis de acesso, garantindo que cada usuário tenha acesso somente às funcionalidades relacionadas à sua função.
 
-Abra `http://localhost:3000/painel` em outra aba para ver o **painel
-público**: ele atualiza sozinho (via polling a cada 2,5s no modo
-demonstração; via Supabase Realtime no modo produção) sempre que uma senha
-é chamada em `/atendimento`.
+### Principais objetivos
 
-## Conectando o Supabase real
+- Organizar o fluxo de atendimento presencial;
+- Reduzir processos manuais de controle de filas;
+- Centralizar informações dos atendimentos;
+- Controlar permissões por função;
+- Permitir acompanhamento do atendimento em tempo real;
+- Registrar informações para consultas posteriores;
+- Disponibilizar um painel público para chamadas.
 
-1. Crie um projeto em https://supabase.com
-2. No SQL Editor do projeto, rode o conteúdo de `supabase/migrations/0001_init.sql`
-3. Copie a "Project URL" e a "anon public key" (Settings → API)
-4. Crie um arquivo `.env.local` na raiz com base em `.env.example`
-5. `npm run dev` novamente — a página `/configuracoes` (como Administrador)
-   mostra se o sistema detectou a conexão
+---
 
-Depois disso, o próximo passo de evolução é trocar a implementação de
-`src/lib/db/store.ts` por chamadas equivalentes usando
-`src/lib/supabase/server.ts` (o `@supabase/supabase-js` já está instalado e
-os clients já estão prontos) — as assinaturas de função foram desenhadas
-para isso.
+## 🚀 Funcionalidades
 
-## Estrutura do projeto
+### 🔐 Autenticação e autorização
 
-```
-src/
-  app/                     rotas (App Router)
-    login/                 tela de login (demo)
-    (app)/                 área autenticada (sidebar + topbar)
-      dashboard/
-      recepcao/novo-atendimento/
-      recepcao/filas/
-      atendimento/         dashboard do atendente
-      historico/
-      relatorios/
-      setores/
-      usuarios/
-      configuracoes/
-    painel/                painel público (TV) — rota pública
-    api/painel/            polling do painel (modo demo)
-    api/relatorios/csv/    exportação CSV
-  components/
-    ui/                    Button, Badge, Card, Field/Input/Select
-    layout/                Sidebar, PageHeader
-  features/
-    tickets/               schema (zod), actions (server actions), components
-    sectors/                idem
-    users/                  idem
-    auth/                   login/logout de demonstração
-  lib/
-    db/store.ts            camada de dados MOCK — todas as regras de negócio
-    supabase/               clients reais (browser/server), prontos para uso
-    auth/session.ts         sessão via cookie (trocar por Supabase Auth)
-  middleware.ts             proteção de rotas
-  types/database.ts         tipos espelhando o schema SQL
-supabase/
-  migrations/0001_init.sql  schema completo + RLS + índices + triggers de sequência
-```
+- Login utilizando Supabase Auth;
+- Controle de acesso baseado em funções;
+- Sessões protegidas por middleware;
+- Validação de permissões no servidor;
+- Usuários ativos/inativos;
+- Associação de atendentes a setores.
 
-## Regras de negócio já implementadas (nos dois modos)
+### 👤 Funções do sistema
 
-- Numeração de senha (`RH-023`) gerada por sequência atômica por setor/dia —
-  nunca calculada no cliente.
-- "Chamar próximo" usa update condicional (`status = 'waiting'`) para evitar
-  que dois atendentes peguem a mesma senha.
-- Mudança de prioridade exige justificativa e gera evento de auditoria.
-- Toda mutação relevante (`created`, `called`, `recalled`, `started`,
-  `completed`, `cancelled`, `no_show`, `priority_changed`) grava um evento em
-  `attendance_events`.
-- Rotas protegidas por papel tanto no middleware (checagem rápida de sessão)
-  quanto no servidor (`requireRole` em cada Server Action/página — nunca
-  confiar só no middleware/])
+O sistema atualmente trabalha com três funções:
 
-## Próximos passos sugeridos
+| Função | Acesso |
+|---|---|
+| Administrador | Gerenciamento completo do sistema |
+| Recepcionista | Registro de visitantes e gerenciamento das filas |
+| Atendente | Atendimento das senhas do seu setor |
 
-1. Conectar o Supabase real e trocar `lib/db/store.ts` por `lib/db/supabase.ts`
-2. Trocar a sessão de cookie simples por Supabase Auth (e-mail/senha ou magic link)
-3. Trocar o polling do painel por uma subscription Realtime (`supabase.channel(...)`)
-4. Testes E2E (Playwright) dos fluxos descritos no documento de arquitetura
+### 🏢 Gerenciamento de setores
+
+Administradores podem:
+
+- Criar setores;
+- Ativar e desativar setores;
+- Definir código do setor;
+- Visualizar setores disponíveis;
+- Associar atendentes aos respectivos setores.
+
+### 🎫 Atendimento
+
+Fluxo principal:
+
+```text
+Recepção
+   ↓
+Cadastro do visitante
+   ↓
+Seleção do setor
+   ↓
+Geração da senha
+   ↓
+Fila de atendimento
+   ↓
+Atendente chama a senha
+   ↓
+Início do atendimento
+   ↓
+Finalização
